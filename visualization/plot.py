@@ -8,9 +8,13 @@ def setup_interactive_plot():
     plt.figure(1, figsize=(10, 5))  # Especificar número de figura
 
 def plot_iteration(malla, iteration, with_grid=False):
-    """Grafica una iteración específica"""
+    """Grafica una iteración específica con sólidos"""
     plt.figure(1)  # Asegurar que usamos la figura 1
     plt.clf()
+    
+    # Importar la función para crear máscara de sólidos
+    from logic.mesh import crear_mascara_solidos
+    mascara_solidos = crear_mascara_solidos()
     
     if with_grid:
         # Estilo con cuadrícula (como en Gauss)
@@ -34,8 +38,11 @@ def plot_iteration(malla, iteration, with_grid=False):
                   vmin=0, vmax=np.max(malla))
         cbar = plt.colorbar(im, label='Velocidad vx')
     
+    # Superponer los sólidos en color blanco con transparencia
+    plt.imshow(mascara_solidos, cmap='gray', alpha=0.3, aspect='equal', vmin=0, vmax=1)
+    
     cbar.set_label('Velocidad vx')
-    plt.title(f'Iteración {iteration}')
+    plt.title(f'Iteración {iteration} - Sólidos en gris claro')
     plt.xlabel('Columnas')
     plt.ylabel('Filas')
     plt.pause(PAUSA_ANIMACION)
