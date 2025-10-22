@@ -11,18 +11,19 @@ def main():
     print("="*50)
     
     # Inicialización
-    vx, vy = inicializar_malla()
+    vx, vy, mascara_solidos = inicializar_malla()
     vx_copy = vx.copy()
     rows, cols = vx.shape
     
     print(f"Iniciando método Richardson...")
     print(f"Tolerancia: {TOLERANCIA}")
     print(f"Máximo de iteraciones: {MAX_ITERACIONES_NEWTON}")
+    print(f"Obstáculos: {np.sum(mascara_solidos)} puntos sólidos")
     
     # Método de Newton con Richardson
     for it in range(MAX_ITERACIONES_NEWTON):
-        F = calculate_F(vx_copy).flatten()
-        J = calculate_Jacobian_sparse(vx_copy).toarray()
+        F = calculate_F(vx_copy, mascara_solidos).flatten()
+        J = calculate_Jacobian_sparse(vx_copy, mascara_solidos).toarray()
         
         # Resolver usando Richardson
         delta_X = Richardson(J, -F)
@@ -35,6 +36,9 @@ def main():
         
         # Actualizar vx
         vx_copy[1:-1, 1:-1] += delta_X.reshape((rows-2, cols-2))
+        
+        # Asegurar que los puntos sólidos mantengan velocidad 0
+        vx_copy[mascara_solidos] = 0
         
         # Verificar convergencia
         if error < TOLERANCIA:

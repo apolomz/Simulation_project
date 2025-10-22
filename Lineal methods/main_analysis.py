@@ -12,7 +12,7 @@ def main():
     print("="*60)
     
     # Inicializar malla
-    vx, vy = inicializar_malla()
+    vx, vy, mascara_solidos = inicializar_malla()
     print(f"Malla inicializada: {vx.shape}")
     
     # Mostrar tabla inicial
@@ -23,7 +23,7 @@ def main():
         mostrar_tabla_velocidades(vx)
     
     # Calcular Jacobiano
-    J = calculate_Jacobian_sparse(vx)
+    J = calculate_Jacobian_sparse(vx, mascara_solidos)
     J_dense = J.toarray()
     
     # Número de condición
