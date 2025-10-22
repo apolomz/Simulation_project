@@ -5,12 +5,18 @@ from config import VY_CONSTANTE  # Cambiar de ..config a config
 
 nx, ny, N = obtener_dimensiones()
 
-def F(X, malla):
+def F(X, malla, mascara_solidos=None):
     """Función F para el sistema no lineal"""
     Fx = np.zeros(N)
     for i in range(nx):
         for j in range(ny):
             k = idx(i, j, ny)
+            
+            # Si es un punto sólido, la velocidad es 0
+            if mascara_solidos is not None and mascara_solidos[i+1, j+1]:
+                Fx[k] = X[k]  # F = 0 cuando v = 0
+                continue
+                
             v = X[k]
             
             # Valores vecinos
@@ -24,13 +30,19 @@ def F(X, malla):
                           - 0.5 * VY_CONSTANTE * (vu - vd))
     return Fx
 
-def Jacobiano(X, sparse=True):
+def Jacobiano(X, mascara_solidos=None, sparse=True):
     """Calcula el Jacobiano del sistema"""
     J = lil_matrix((N, N))
     
     for i in range(nx):
         for j in range(ny):
             k = idx(i, j, ny)
+            
+            # Si es un punto sólido, la derivada es 1 (v = 0)
+            if mascara_solidos is not None and mascara_solidos[i+1, j+1]:
+                J[k, k] = 1.0
+                continue
+                
             v = X[k]
             vr = X[idx(i+1, j, ny)] if i+1 < nx else 0
             vl = X[idx(i-1, j, ny)] if i-1 >= 0 else 0

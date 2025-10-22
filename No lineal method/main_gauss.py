@@ -9,15 +9,22 @@ from config import (TOLERANCIA, MAX_ITERACIONES, MOSTRAR_JACOBIANO,
 
 def main():
     # Inicialización
-    malla = inicializar_malla()
+    malla, mascara_solidos = inicializar_malla()
     nx, ny, N = obtener_dimensiones()
     
     X0 = np.full((nx, ny), 0.5)
+    
+    # Aplicar condiciones de sólidos a la condición inicial
+    for i in range(nx):
+        for j in range(ny):
+            if mascara_solidos[i+1, j+1]:  # +1 porque la malla incluye bordes
+                X0[i, j] = 0.0
+    
     X = X0.flatten()
     
     # Mostrar Jacobiano inicial
     if MOSTRAR_JACOBIANO or GRAFICAR_JACOBIANO:
-        J = Jacobiano(X, sparse=False)
+        J = Jacobiano(X, mascara_solidos, sparse=False)
         
         if MOSTRAR_JACOBIANO:
             print_jacobiano_info(J, 0, sparse=False)
@@ -29,10 +36,14 @@ def main():
     
     # Método de Newton-Raphson
     for it in range(MAX_ITERACIONES):
-        X, error = newton_raphson_step_gauss(X, malla)
+        X, error = newton_raphson_step_gauss(X, malla, mascara_solidos)
         
         # Actualizar malla y graficar
         malla[1:6, 1:51] = X.reshape((nx, ny))
+        
+        # Asegurar que los puntos sólidos mantengan velocidad 0
+        malla[mascara_solidos] = 0
+        
         plot_iteration(malla, it+1, with_grid=True)
         
         print(f"Iteración {it+1}, error: {error:.6e}")

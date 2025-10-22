@@ -20,16 +20,16 @@ def gauss_elimination(A, b):
 
     return x
 
-def newton_raphson_step_spsolve(X, malla):
+def newton_raphson_step_spsolve(X, malla, mascara_solidos=None):
     """Un paso del método Newton-Raphson usando spsolve"""
-    Fx = F(X, malla)
-    Jx = Jacobiano(X, sparse=True)
+    Fx = F(X, malla, mascara_solidos)
+    Jx = Jacobiano(X, mascara_solidos, sparse=True)
     delta_X = spsolve(Jx, -Fx)
     return X + delta_X, np.linalg.norm(delta_X, np.inf)
 
-def newton_raphson_step_gauss(X, malla):
+def newton_raphson_step_gauss(X, malla, mascara_solidos=None):
     """Un paso del método Newton-Raphson usando eliminación de Gauss"""
-    Fx = F(X, malla)
-    Jx = Jacobiano(X, sparse=False)
+    Fx = F(X, malla, mascara_solidos)
+    Jx = Jacobiano(X, mascara_solidos, sparse=False)
     delta_X = gauss_elimination(Jx, -Fx)
     return X + delta_X, np.linalg.norm(delta_X, np.inf)
