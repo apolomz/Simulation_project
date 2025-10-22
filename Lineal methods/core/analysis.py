@@ -76,6 +76,51 @@ def verifica_convergencia_richardson(A):
         print("❌ No se pudo invertir la matriz Q")
         return False, float('inf')
 
+def calcular_radio_espectral(A):
+    """Calcula el radio espectral de la matriz A"""
+    try:
+        autovalores = np.linalg.eigvals(A)
+        radio_espectral = np.max(np.abs(autovalores))
+        return radio_espectral, autovalores
+    except np.linalg.LinAlgError:
+        print("❌ Error al calcular autovalores")
+        return None, None
+
+def analizar_radio_espectral(A, nombre_matriz="Matriz"):
+    """Analiza el radio espectral de una matriz"""
+    print(f"\n" + "="*50)
+    print(f"ANÁLISIS DEL RADIO ESPECTRAL - {nombre_matriz.upper()}")
+    print("="*50)
+    
+    radio, autovalores = calcular_radio_espectral(A)
+    
+    if radio is not None:
+        print(f"Radio espectral: {radio:.6f}")
+        print(f"Autovalor máximo (módulo): {np.max(np.abs(autovalores)):.6f}")
+        print(f"Autovalor mínimo (módulo): {np.min(np.abs(autovalores)):.6f}")
+        
+        # Análisis de convergencia
+        if radio < 1:
+            print("✅ Radio espectral < 1 - Convergencia garantizada")
+        elif radio == 1:
+            print("⚠️ Radio espectral = 1 - Convergencia marginal")
+        else:
+            print("❌ Radio espectral > 1 - Convergencia no garantizada")
+        
+        # Información adicional
+        autovalores_reales = np.real(autovalores)
+        autovalores_imaginarios = np.imag(autovalores)
+        
+        print(f"\nInformación de autovalores:")
+        print(f"  - Autovalores reales: {np.sum(np.abs(autovalores_imaginarios) < 1e-10)}")
+        print(f"  - Autovalores complejos: {np.sum(np.abs(autovalores_imaginarios) >= 1e-10)}")
+        print(f"  - Rango real: [{np.min(autovalores_reales):.3f}, {np.max(autovalores_reales):.3f}]")
+        print(f"  - Rango imaginario: [{np.min(autovalores_imaginarios):.3f}, {np.max(autovalores_imaginarios):.3f}]")
+        
+        return radio, autovalores
+    else:
+        return None, None
+
 def analizar_matriz(A):
     """Analiza propiedades de la matriz"""
     simetrica = np.allclose(A, A.T)
@@ -90,8 +135,12 @@ def analizar_matriz(A):
     else:
         tipo = "Semidefinida"
     
+    # Calcular radio espectral
+    radio_espectral = np.max(np.abs(autovalores))
+    
     return {
         "Simetrica": simetrica,
         "Tipo de matriz": tipo,
-        "Diagonal dominante": es_diagonalmente_dominante(A)
+        "Diagonal dominante": es_diagonalmente_dominante(A),
+        "Radio espectral": f"{radio_espectral:.6f}"
     }

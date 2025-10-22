@@ -22,9 +22,9 @@ def crear_mascara_solidos():
                 mascara[i, j] = True
     
     # Obstáculo 2: Rectángulo 2x15 en la esquina superior derecha
-    altura_obstaculo2 = 2
+    altura_obstaculo2 = 3
     ancho_obstaculo2 = 15
-    fila_inicio2 = 1  # Una fila abajo del borde superior
+    fila_inicio2 = 0  # Una fila abajo del borde superior
     col_inicio2 = COLUMNAS - ancho_obstaculo2 - 1  # Una columna antes del borde derecho
     
     for i in range(fila_inicio2, fila_inicio2 + altura_obstaculo2):

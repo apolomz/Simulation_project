@@ -1,13 +1,13 @@
 import numpy as np
 from core.mesh import inicializar_malla, obtener_dimensiones
 from core.equations import calculate_F, calculate_Jacobian_sparse
-from core.solvers import Jacobi
+from core.solvers import conjugate_gradient
 from visualization.plotter import plot_velocity_field
 from config import MAX_ITERACIONES_NEWTON, TOLERANCIA
 
 def main():
     print("="*50)
-    print("MÉTODO ITERATIVO DE JACOBI")
+    print("MÉTODO DEL GRADIENTE CONJUGADO")
     print("="*50)
     
     # Inicialización
@@ -15,23 +15,18 @@ def main():
     vx_copy = vx.copy()
     rows, cols = vx.shape
     
-    # Añadir visualización inicial
-    print("\nDistribución inicial de velocidades:")
-    print(vx_copy[1:-1, 1:-1])  # Solo muestra región interna
-    plot_velocity_field(vx_copy, method_name="Condición Inicial")
-    
-    print(f"\nIniciando método Jacobi...")
+    print(f"\nIniciando método del Gradiente Conjugado...")
     print(f"Tolerancia: {TOLERANCIA}")
     print(f"Máximo de iteraciones: {MAX_ITERACIONES_NEWTON}")
     print(f"Obstáculos: {np.sum(mascara_solidos)} puntos sólidos")
     
-    # Método de Newton con Jacobi
+    # Método de Newton con Gradiente Conjugado
     for it in range(MAX_ITERACIONES_NEWTON):
         F = calculate_F(vx_copy, mascara_solidos).flatten()
         J = calculate_Jacobian_sparse(vx_copy, mascara_solidos).toarray()
         
-        # Resolver usando Jacobi
-        delta_X = Jacobi(J, -F)
+        # Resolver usando Gradiente Conjugado
+        delta_X = conjugate_gradient(J, -F)
         
         # Información de la iteración
         error = np.linalg.norm(delta_X)
@@ -53,7 +48,7 @@ def main():
         print(f"\n❌ No se alcanzó convergencia en {MAX_ITERACIONES_NEWTON} iteraciones")
     
     # Mostrar resultado
-    plot_velocity_field(vx_copy, method_name="Método Jacobi")
+    plot_velocity_field(vx_copy, method_name="Método Gradiente Conjugado")
     
     print("="*50)
 

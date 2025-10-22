@@ -22,9 +22,9 @@ def crear_mascara_solidos():
                 mascara[i, j] = True
     
     # Obstáculo 2: Rectángulo 2x15 en la esquina superior derecha
-    altura_obstaculo2 = 2
+    altura_obstaculo2 = 3
     ancho_obstaculo2 = 15
-    fila_inicio2 = 1  # Una fila abajo del borde superior
+    fila_inicio2 = 0  # Una fila abajo del borde superior
     col_inicio2 = COLUMNAS - ancho_obstaculo2 - 1  # Una columna antes del borde derecho
     
     for i in range(fila_inicio2, fila_inicio2 + altura_obstaculo2):
@@ -40,10 +40,12 @@ def inicializar_malla():
     vy = np.zeros((FILAS, COLUMNAS))
     
     # Condiciones de frontera
-    vx[0, :] = 0; vx[-1, :] = 0
-    vy[0, :] = VY_CONSTANTE; vy[-1, :] = VY_CONSTANTE
+    vx[0, :] = 0  # Cambio aquí: velocidad superior en x = 0
+    vx[-1, :] = 0
+    vy[0, :] = VY_CONSTANTE
+    vy[-1, :] = VY_CONSTANTE
     vx[1:6, 0] = 1
-    vx[0, 0] = 0
+    # vx[0, 0] = 0  # Eliminar esta línea para mantener vx = 1 en toda la parte superior
     vx[6, 0] = 0
     vy[:, 0] = VY_CONSTANTE
     vx[:, -1] = 0
