@@ -9,7 +9,7 @@ TOLERANCIA = 1e-7
 MAX_ITERACIONES = 40
 
 # Parámetros físicos
-VY_CONSTANTE = 0.1
+VY_CONSTANTE = 0.5
 
 # Parámetros de visualización
 PAUSA_ANIMACION = 0.3

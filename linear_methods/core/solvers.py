@@ -1,5 +1,5 @@
-import numpy as np
 import time
+import numpy as np
 from config import TOLERANCIA, MAX_ITERACIONES_LINEALES
 
 def LU_decomposition(A):
@@ -207,33 +207,110 @@ def comparar_matrices(A):
     
     return matrices
 
-def gradient_descent(A, b, max_iter=None, alpha=0.01):
-    """Método del gradiente descendiente para resolver Ax = b"""
-    start_time = time.perf_counter()
-    
+def gradient_descent(A, b, max_iter=None, tol=None, mode='auto', precond=None, symm_for_alpha=False):
+    """Gradiente descendente con mejoras:
+    - mode: 'auto'|'direct'|'normal'
+      'direct' : steepest-descent sobre Ax=b (requiere SPD for guarantees)
+      'normal' : minimiza 1/2||Ax-b||^2 (usa A^T A)
+      'auto'   : elige 'direct' si A ≈ A^T, sino 'normal'
+    - precond: None|'jacobi' aplica precondicionamiento diagonal (Jacobi)
+    - symm_for_alpha: si True y A no es simétrica, usa (A+A^T)/2 para calcular alpha
+    Devuelve x (solución). Imprime info de progreso.
+    """
+    start = time.perf_counter()
     if max_iter is None:
         max_iter = MAX_ITERACIONES_LINEALES
-    
-    n = len(b)
-    x = np.zeros(n)
-    AT = A.T
-    ATb = AT @ b
-    
-    for k in range(max_iter):
-        grad = AT @ (A @ x - b)
-        x_new = x - alpha * grad
-        
-        if np.linalg.norm(x_new - x) < TOLERANCIA:
-            end_time = time.perf_counter()
-            print(f"Gradiente Descendiente convergió en {k+1} iteraciones")
-            print(f"Tiempo total: {end_time - start_time:.4f} segundos")
-            return x_new
-            
-        x = x_new
-    
-    end_time = time.perf_counter()
-    print("Gradiente Descendiente no convergió")
-    print(f"Tiempo total: {end_time - start_time:.4f} segundos")
+    if tol is None:
+        tol = TOLERANCIA
+
+    A = np.asarray(A, dtype=float)
+    b = np.asarray(b, dtype=float)
+    n = b.size
+    x = np.zeros(n, dtype=float)
+
+    # elegir modo
+    if mode == 'auto':
+        symmetric = np.allclose(A, A.T, atol=1e-12, rtol=1e-8)
+        mode = 'direct' if symmetric else 'normal'
+
+    # construir precondicionador diagonal si se solicita
+    M_inv = None
+    if precond == 'jacobi':
+        if mode == 'normal':
+            diag = np.sum(A * A, axis=0)  # diag(A^T A)
+        else:
+            diag = np.diag(A).copy()
+        # evitar ceros
+        diag = np.where(np.abs(diag) < 1e-16, 1.0, diag)
+        M_inv = 1.0 / diag
+
+    # si se usa symmetrized operator para alpha cálculo
+    As = None
+    if symm_for_alpha and mode != 'direct':
+        As = 0.5 * (A + A.T)
+
+    prev_err = None
+    for k in range(1, max_iter + 1):
+        if mode == 'direct':
+            r = b - A.dot(x)
+            if M_inv is None:
+                z = r
+            else:
+                z = M_inv * r
+            rTz = r.dot(z)
+            if rTz == 0:
+                print(f"Gradiente: residuo nulo en iter {k}")
+                break
+            # denom = z^T A z  (si se desea usar As symmetrized, se podría usar As here)
+            denom = z.dot(A.dot(z))
+            if denom == 0:
+                print(f"Gradiente: denominador cero en iter {k}")
+                break
+            alpha = rTz / denom
+            x = x + alpha * z
+            err = np.linalg.norm(b - A.dot(x))
+        else:
+            # normal equations route (min 1/2||Ax-b||^2)
+            Ax_b = A.dot(x) - b
+            g = A.T.dot(Ax_b)  # gradient
+            if M_inv is None:
+                z = g
+            else:
+                z = M_inv * g
+            gg = g.dot(z)
+            if gg == 0:
+                print(f"Gradiente(normal): gradiente nulo en iter {k}")
+                break
+            # compute denom = ||A * (M_inv * g)||^2  (line-search denominator)
+            AMG = A.dot(z)
+            denom = AMG.dot(AMG)
+            if denom == 0:
+                print(f"Gradiente(normal): denominador cero en iter {k}")
+                break
+            alpha = gg / denom
+            x = x - alpha * z
+            err = np.linalg.norm(A.dot(x) - b)
+
+        if np.isnan(err) or np.isinf(err):
+            print(f"⚠️ Gradiente detectó NaN/Inf en iter {k}; interrumpiendo")
+            break
+
+        if k <= 8 or k % 25 == 0:
+            print(f"Gradiente iter {k}: err = {err:.3e}, alpha = {alpha:.3e}")
+
+        if prev_err is not None and err > 1e6 * prev_err:
+            print(f"⚠️ Explosión del error en iter {k}, interrumpiendo")
+            break
+
+        if err < tol:
+            elapsed = time.perf_counter() - start
+            print(f"Gradiente convergió en {k} iter(s), tiempo: {elapsed:.4f}s, err={err:.3e}")
+            return x
+
+        prev_err = err
+
+    elapsed = time.perf_counter() - start
+    print(f"Gradiente no convergió en {max_iter} iter. Tiempo: {elapsed:.4f}s, err={err:.3e}")
     return x
 
 def conjugate_gradient(A, b, max_iter=None):
