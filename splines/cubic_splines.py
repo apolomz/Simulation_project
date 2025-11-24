@@ -55,11 +55,12 @@ def calculate_Jacobian_sparse(vx, h=1.0):
     rows, cols = vx.shape
     n = (rows-2) * (cols-2)
     J = lil_matrix((n, n))
+    vy_const = 0.1  # Velocidad constante en dirección y
 
     for i in range(1, rows-1):
         for j in range(1, cols-1):
             idx = (i-1)*(cols-2) + (j-1)
-            J[idx, idx] = 1 + (h/8)*(vx[i+1,j] - vx[i-1,j]) + (h/8)*vy[i,j]*(vx[i,j+1] - vx[i,j-1])
+            J[idx, idx] = 1 + (h/8)*(vx[i+1,j] - vx[i-1,j]) + (h/8)*vy_const*(vx[i,j+1] - vx[i,j-1])
 
             if i > 1:
                 J[idx, idx - (cols-2)] = -0.25 + (h/8)*vx[i,j]
@@ -71,18 +72,20 @@ def calculate_Jacobian_sparse(vx, h=1.0):
                 J[idx, idx + 1] = -0.25 - (h/8)*0.1
     return J
 vx_copy_richardson = vx.copy()
-def Richardson(a, b, M):
+def Richardson(A, b, max_iter, alpha=0.1, tol=1e-7):
+    """
+    Método de Richardson para resolver Ax = b
+    x^(k+1) = x^(k) + alpha * (b - A*x^(k))
+    """
     n = b.shape[0]
     x = np.zeros(n)  # Vector unidimensional para la solución
-    tol=1e-7
 
-    for k in range(M):
-        r = b - np.dot(a, x)  # Calculamos el residuo
-        x = x + r  # Método de Richardson: corregir el valor de x
+    for k in range(max_iter):
+        r = b - np.dot(A, x)  # Calculamos el residuo
+        x = x + alpha * r  # Método de Richardson con parámetro alpha
 
-        # Criterio de convergencia opcional (norma del residuo)
-        if np.linalg.norm(np.dot(a, x) - b) < tol:
-
+        # Criterio de convergencia (norma del residuo)
+        if np.linalg.norm(r) < tol:
             break
 
     return x
@@ -94,8 +97,8 @@ for it in range(max_iter):
     F = calculate_F(vx_copy_richardson).flatten()  # Vector de residuos
     J = calculate_Jacobian_sparse(vx_copy_richardson).toarray()  # Matriz Jacobiana
 
-    # Resolver J·ΔX = -F(X) usando LU
-    delta_X = Richardson(J, -F, 1000)
+    # Resolver J·ΔX = -F(X) usando Richardson
+    delta_X = Richardson(J, -F, max_iter=1000, alpha=0.1, tol=tol)
 
 
 

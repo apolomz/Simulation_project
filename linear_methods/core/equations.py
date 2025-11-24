@@ -37,7 +37,11 @@ def calculate_Jacobian_sparse(vx, mascara_solidos=None, h=1.0):
                 J[idx, idx] = 1.0
                 continue
                 
-            J[idx, idx] = 1 + (h/8)*(vx[i+1,j] - vx[i-1,j]) + (h/8)*vy[i,j]*(vx[i,j+1] - vx[i,j-1])
+            # Derivada con respecto a vx[i,j]:
+            # F = vx[i,j] - (1/4)*(term1 - term2 - term3)
+            # donde term2 = (h/2)*vx[i,j]*(vx[i+1,j] - vx[i-1,j])
+            # ∂F/∂vx[i,j] = 1 + (h/8)*(vx[i+1,j] - vx[i-1,j])
+            J[idx, idx] = 1 + (h/8)*(vx[i+1,j] - vx[i-1,j])
 
             if i > 1:
                 J[idx, idx - (cols-2)] = -0.25 + (h/8)*vx[i,j]

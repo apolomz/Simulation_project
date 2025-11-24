@@ -53,28 +53,47 @@ def verificar_convergencia_jacobi(A):
     
     return norma < 1, norma
 
-def verifica_convergencia_richardson(A):
-    """Verifica condiciones de convergencia para Richardson"""
+def verifica_convergencia_richardson(A, alpha=0.1):
+    """
+    Verifica condiciones de convergencia para Richardson
+    La matriz de iteración es M = I - alpha * A
+    """
     A = np.array(A, dtype=float)
     I = np.eye(A.shape[0])
-    Q = np.eye(A.shape[0])
     
+    # Matriz de iteración de Richardson: M = I - alpha * A
+    M = I - alpha * A
+    norma_inf = np.linalg.norm(M, ord=np.inf)
+    
+    # Calcular radio espectral
     try:
-        Q_inv = np.linalg.inv(Q)
-        B = I - Q_inv @ A
-        norma_inf = np.linalg.norm(B, ord=np.inf)
-        
-        print(f"\nAnálisis de convergencia Richardson:")
-        print(f"Norma infinito de (I - Q^(-1) * A): {norma_inf:.6f}")
+        autovalores = np.linalg.eigvals(M)
+        radio_espectral = np.max(np.abs(autovalores))
+    except:
+        radio_espectral = None
+    
+    print(f"\nAnálisis de convergencia Richardson (α={alpha}):")
+    print(f"Matriz de iteración: M = I - {alpha} * A")
+    print(f"Norma infinito de M: {norma_inf:.6f}")
+    if radio_espectral is not None:
+        print(f"Radio espectral de M: {radio_espectral:.6f}")
+    
+    # Criterio de convergencia: radio espectral < 1
+    if radio_espectral is not None:
+        if radio_espectral < 1:
+            print("✅ El método Richardson puede converger (radio espectral < 1)")
+        elif radio_espectral == 1:
+            print("⚠️ El método Richardson tiene convergencia marginal (radio espectral = 1)")
+        else:
+            print("❌ El método Richardson no garantiza convergencia (radio espectral > 1)")
+        return radio_espectral < 1, radio_espectral
+    else:
+        # Fallback a norma infinito
         if norma_inf <= 1:
             print("✅ El método Richardson puede converger (norma < 1)")
         else:
             print("❌ El método Richardson no garantiza convergencia (norma >= 1)")
-        
         return norma_inf < 1, norma_inf
-    except np.linalg.LinAlgError:
-        print("❌ No se pudo invertir la matriz Q")
-        return False, float('inf')
 
 def calcular_radio_espectral(A):
     """Calcula el radio espectral de la matriz A"""

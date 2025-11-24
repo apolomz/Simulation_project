@@ -46,7 +46,12 @@ def Jacobiano(X, mascara_solidos=None, sparse=True):
             v = X[k]
             vr = X[idx(i+1, j, ny)] if i+1 < nx else 0
             vl = X[idx(i-1, j, ny)] if i-1 >= 0 else 0
+            vu = X[idx(i, j+1, ny)] if j+1 < ny else 0
+            vd = X[idx(i, j-1, ny)] if j-1 >= 0 else 0
 
+            # Derivada con respecto a v: 
+            # F = v - (1/4)*(vr+vl+vu+vd) + (1/8)*v*(vr-vl) + (1/8)*VY_CONSTANTE*(vu-vd)
+            # dF/dv = 1 + (1/8)*(vr - vl)
             J[k, k] = 1 + (1/8) * (vr - vl)
 
             if i+1 < nx:
