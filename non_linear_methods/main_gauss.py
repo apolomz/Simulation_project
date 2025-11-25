@@ -3,7 +3,8 @@ from core.mesh import inicializar_malla, obtener_dimensiones
 from core.solvers import newton_raphson_step_gauss
 from core.equations import Jacobiano
 from visualization.plotter import (setup_interactive_plot, plot_iteration, 
-                                  finalize_plot, plot_jacobiano, print_jacobiano_info)
+                                  finalize_plot, plot_jacobiano, print_jacobiano_info,
+                                  plot_final_with_splines)
 from config import (TOLERANCIA, MAX_ITERACIONES, MOSTRAR_JACOBIANO, 
                    GRAFICAR_JACOBIANO)
 
@@ -50,6 +51,9 @@ def main():
         if error < TOLERANCIA:
             print("Convergencia alcanzada.")
             break
+    
+    # Mostrar visualización final con splines suavizados
+    plot_final_with_splines(malla)
     
     finalize_plot()
 

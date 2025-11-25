@@ -39,7 +39,7 @@ def inicializar_malla():
     malla = np.empty((FILAS, COLUMNAS))
     
     # Condiciones de frontera
-    malla[0, :] = 0              # Borde superior - velocidad inicial 1
+    malla[0, :] = 1              # Borde superior - velocidad inicial 1
     malla[-1, :] = 0             # Borde inferior
     malla[:, -1] = 0             # Borde derecho
     malla[1:6, 0] = 1            # Entrada del fluido
