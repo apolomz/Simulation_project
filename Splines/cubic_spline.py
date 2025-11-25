@@ -117,8 +117,8 @@ y = np.arange(rows)
 spline = RectBivariateSpline(y, x, vx_copy_richardson, kx=3, ky=3)
 
 # Crear una malla más fina para visualización suave
-x_fine = np.linspace(0, cols-1, 200)
-y_fine = np.linspace(0, rows-1, 50)
+x_fine = np.linspace(0, cols-1, 260)
+y_fine = np.linspace(0, rows-1, 35)
 X_fine, Y_fine = np.meshgrid(x_fine, y_fine)
 
 # Evaluar el spline en la malla fina
