@@ -1,5 +1,5 @@
 import numpy as np
-from core.equations import F, Jacobiano
+from logic.equations import F, Jacobiano
 
 def newton_raphson_step_numpy(X, malla):
     """Una iteración del método Newton-Raphson usando numpy.linalg.solve"""
