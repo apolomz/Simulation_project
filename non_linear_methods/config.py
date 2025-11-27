@@ -9,12 +9,12 @@ TOLERANCIA = 1e-7
 MAX_ITERACIONES = 40
 
 # Parámetros físicos
-VY_CONSTANTE = 0.1
+VY_CONSTANTE = 0.5
 
 # Parámetros de visualización
 PAUSA_ANIMACION = 0.3
-COLORMAP = 'viridis'
+COLORMAP = 'plasma'
 
 # Parámetros para debugging del Jacobiano
-MOSTRAR_JACOBIANO = True
-GRAFICAR_JACOBIANO = True
+MOSTRAR_JACOBIANO = True           # Si mostrar información del Jacobiano
+GRAFICAR_JACOBIANO = True          # Si graficar el Jacobiano
