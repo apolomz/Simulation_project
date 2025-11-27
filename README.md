@@ -1,93 +1,113 @@
-### Autores: Valentina Barbetty Arango | Lenin Esteban Carabalí Moreno | Juan José Cortés Rodríguez
-#### Fecha: Febrero-Julio 2025
+### Autores: Juan Sebastian Sierra | Joan Sebastian Fernandez | Luis Gabriel Rodriguez
+#### Fecha: Noviembre de 2025
 
-# Descripción
-En este repositorio se aloja el codigo desarrollado para apoyar el proyecto de la materia *SIMULACIÓN Y COMPUTACIÓN NUMERICA* relacionado con la realizacion de la simulación numérica de flujo incompresible utilizando las ecuaciones de Navier-Stokes, desde discretizar las ecuaciones para poder trabajarlas con codigo, hasta solucionarlas con metodos numericos para sistemas de ecuaciones no lineales y lineales, por ultimo mejorar la visualización interpolando los resultados con splines.
+# Simulación Numérica de Flujo Incompresible (Navier-Stokes)
 
-# Información
-Este repositorio está dividido en 3 secciones, cada una en una carpeta:
+- **Asignatura:** Simulación y Computación Numérica  
+- **Proyecto:** Discretización y solución de ecuaciones de Navier-Stokes mediante Métodos Numéricos.
 
-# Sección 1: Primer Avance de solucion del sistema no lineal (carpeta "No lineal method") 
-En esta sección se desarrolló la solución del problema utilizando el metodo de Newton Raphson para resolver el sistema no lineal y de forma interna se utilizaron dos opciones de metodos lineales (no iterativos), Eliminación de gauss y spsolve propio de python. esto ultimo con el objetivo de poder visualizar resultados ya que para ese entonces no teníamos conocimiento de los metodos lineales iterativos que se verían mas adelante en el curso y que son utilizados en la siguiente sección.
+## Descripción
 
-En esta parte del proyecto se implementa la simulación de flujo de fluidos en una malla bidimensional utilizando el método de Newton-Raphson para resolver sistemas de ecuaciones no lineales.
+Este repositorio aloja el desarrollo computacional para la simulación de flujo de fluidos incompresibles. El proyecto abarca el ciclo completo de la simulación numérica:
 
-Para visualizar los resultados de esta sección se siguen los pasos:
-## Instalación necesaria:
-```bash
-pip install numpy scipy matplotlib
-```
-
-## Ejecución:
-```bash
-cd "No lineal method"
-python main_spsolve.py     # Método con spsolve
-python main_gauss.py       # Método con eliminación de Gauss
-```
-
-## ¿Qué se visualiza?
-- **Consola**: Información del Jacobiano (dimensiones, elementos) y progreso de convergencia
-- **Gráfica 1**: Malla de velocidades con cuadrícula
-- **Gráfica 2**: Matriz Jacobiana 
+1.  **Discretización:** Transformación de las ecuaciones diferenciales de Navier-Stokes para su tratamiento computacional.
+2.  **Solución No Lineal:** Implementación del método de Newton-Raphson.
+3.  **Solución de Sistemas Lineales:** Comparativa entre solvers directos y métodos iterativos (Jacobi, Gauss-Seidel, Richardson).
+4.  **Post-procesamiento:** Mejora de la visualización de resultados mediante interpolación con Splines Cúbicos.
 
 ---
 
-# Sección 2: Métodos Lineales Iterativos (carpeta "Lineal methods")
-Implementación de métodos iterativos (Jacobi, Gauss-Seidel, Richardson, LU) con análisis de convergencia.
+## Requisitos e Instalación
 
-## Instalaciones necesarias:
-```bash
-pip install numpy scipy matplotlib pandas
+Este proyecto utiliza **Python**. Para asegurar el correcto funcionamiento de todos los módulos, se recomienda instalar las siguientes librerías de computación científica y visualización:
+
+`pip install numpy scipy matplotlib pandas`
+
+## Estructura del Proyecto
+El repositorio está organizado en tres fases lógicas de desarrollo:
+
+```
+├── linear_methods/        # Fase 1: Solución del sistema no lineal (Newton-Raphson)
+├── non_linear_methods/          # Fase 2: Análisis y aplicación de métodos iterativos
+└── splines/   # Fase 3: Post-procesamiento y suavizado de gráficos
 ```
 
-## Ejecución:
-```bash
-cd "Lineal methods"
+### Sección 1: Solución de Sistema No Lineal
+Carpeta: `non_linear_methods/`
 
-# PASO 1 - Análisis inicial 
+En esta etapa inicial se implementó la física del problema utilizando el Método de Newton-Raphson para resolver el sistema de ecuaciones no lineales resultante de la discretización.
+
+Para resolver los sistemas lineales internos que genera cada iteración de Newton-Raphson, se utilizaron inicialmente solvers directos (no iterativos) para validar el modelo físico antes de proceder a métodos más complejos.
+
+Ejecución:
+
+`non_linear_methods/`
+
+- **Opción A:** Solución usando el solver optimizado de SciPy
+`python main_spsolve.py`
+
+- **Opción B:** Solución implementando Eliminación de Gauss manual
+`python main_gauss.py`
+
+##### Resultados Esperados
+Consola: Detalles de la Matriz Jacobiana (dimensiones y elementos) y el error en cada iteración de convergencia.
+
+#### Visualización:
+
+Gráfica de la malla de velocidades.
+
+Representación gráfica de la estructura de la Matriz Jacobiana (dispersión).
+
+### Sección 2: Métodos Lineales Iterativos
+Carpeta: `linear_methods/`
+
+Esta sección constituye el núcleo del análisis numérico. Se reemplazan los solvers directos por métodos iterativos, realizando un estudio profundo sobre su estabilidad y convergencia aplicada al problema de fluidos.
+
+Métodos implementados:
+
+- Jacobi
+
+- Gauss-Seidel
+
+- Richardson
+
+- Descomposición LU (como referencia directa)
+
+Ejecución
+
+Paso 1: Análisis de Convergencia Antes de ejecutar los métodos, se recomienda correr el script de análisis para verificar si el sistema cumple con las condiciones necesarias (como ser diagonal dominante) y calcular el número de condición.
+
+```
+cd "linear_methods"
 python main_analysis.py
-
-# PASO 2 - Ejecutar métodos individuales
-python main_lu.py
-python main_jacobi.py
-python main_gauss_seidel.py
-python main_richardson.py
 ```
 
-## ¿Qué se visualiza?
-
-### main_analysis.py:
-- **Consola**: 
-  - Tabla de velocidades inicial
-  - Información del Jacobiano (dimensiones, número de condición)
-  - Análisis de supuestos de convergencia para cada método
-  - Verificación de diagonal dominante y normas
-
-### Métodos individuales (main_*.py):
-- **Consola**: Progreso iterativo con normas de error y convergencia
-- **Gráfica**: Campo de velocidades final del método correspondiente
-
----
-
-# Sección 3: Visualización Mejorada (carpeta "Improve Visualization")
-Mejora de visualización usando interpolación con splines cúbicos bidimensionales.
-
-## Instalaciones necesarias:
-```bash
-pip install numpy scipy matplotlib
+Paso 2: Ejecución de Métodos
 ```
+python main_lu.py            # Método LU
+python main_jacobi.py        # Método de Jacobi
+python main_gauss_seidel.py  # Método de Gauss-Seidel
+python main_richardson.py    # Método de Richardson
+```
+#### Resultados Esperados:
 
-## Ejecución:
-```bash
-cd "Improve Visualization"
+Análisis (`main_analysis.py`): Tabla de velocidades iniciales, propiedades del Jacobiano (número de condición) y validación teórica de convergencia para cada método.
+
+Métodos (`main_*.py`): Log de evolución del error por iteración y gráfica final del campo de velocidades generado por el método específico.
+
+### Sección 3: Visualización Mejorada
+Carpeta: `splines/`
+
+Fase de post-procesamiento. Dado que las mallas computacionales pueden ser gruesas para ahorrar coste de cálculo, se utilizan técnicas de interpolación para generar visualizaciones de alta calidad y transiciones suaves.
+
+Técnica: Interpolación con Splines Cúbicos Bidimensionales.
+
+Ejecución:
+```
+cd "splines/"
 python cubic_splines.py
 ```
 
-## ¿Qué se visualiza?
-- **Gráfica**: Comparación lado a lado del campo original vs suavizado con splines
-- **Mejora**: Resolución aumentada (7x52 → 50x200) con transiciones suaves
+##### Resultados Esperados
+Comparativa: Se genera una gráfica que muestra lado a lado el campo de velocidades original (baja resolución, ej: 7x52) contra el campo suavizado e interpolado (alta resolución, ej: 50x200).
 
----
-
-## Anexo de ejcución en estorno virtual (notebook)
-https://colab.research.google.com/drive/1t9WZjB2AtkLwX0Lvln5KLzFgRprM7IUF?usp=sharing
